@@ -1,72 +1,61 @@
-# Hospital Admission — Assignment 5 (Strategy Pattern)
+# Hospital Admission — Assignment 5
 
-Java 17, Maven, JUnit 5. Two strategy families:
+Strategy Design Pattern project in Java using Maven and JUnit 5.
 
-- Bed selection: first available, nearest, least-busy ward.
-- Lab scheduling: arrival order, highest urgency, shortest expected test.
+The project has two strategy families:
 
-`HospitalStrategySelector` selects automatically from urgency, hospital load, and queue size. Both contexts can switch with `setStrategy()`. `WardLoadSource` isolates simulated ward occupancy. The tests inject a fixed fake source.
+- **Bed Selection:** first available bed, nearest bed, least busy ward.
+- **Lab Scheduling:** first come, highest urgency, shortest test.
 
-## Run
+Each family has three strategies. The user can select a strategy manually, or the program can choose one automatically using `HospitalStrategySelector`.
 
-From IntelliJ: open `pom.xml` as a Maven project, run `hospital.Main`.
+## How to Run
 
-Terminal:
+Open the project in IntelliJ IDEA as a Maven project and run `Main.java`.
+
+To run the tests:
 
 ```bash
 mvn test
-mvn -q -DskipTests package
-java -cp target/classes hospital.Main
 ```
 
-## Demo
+The program shows the results of different strategies and allows switching between them during runtime.
 
-The program prints the same bed and lab inputs processed by all three strategies. Enter a manual choice (FIRST/NEAREST/LEAST_BUSY and FIRST/URGENT/SHORTEST). Then enter urgency, busy status, and lab queue length. It prints automatic results after replacing strategies with `setStrategy()`.
-
-Sample inputs:
-
-```text
-FIRST
-FIRST
-5
-y
-4
-```
-
-Expected automatic choices: nearest bed B2, urgent lab L2.
-
-## Classes and responsibilities (SRP)
+## Classes and Responsibilities
 
 | Class | Responsibility |
 |---|---|
-| `Bed` | Stores one hospital bed's data. |
-| `LabRequest` | Stores one laboratory request's data. |
-| `BedSelectionStrategy` | Defines the bed choice contract. |
-| `FirstAvailableBedStrategy` | Selects the first available bed. |
-| `NearestBedStrategy` | Selects the nearest available bed. |
-| `LeastBusyWardStrategy` | Selects an available bed using ward occupancy. |
-| `BedAllocationContext` | Delegates bed choice to the active strategy. |
-| `BedPlanner` | Provides a stable bed choice entry point for regression tests. |
-| `LabSchedulingStrategy` | Defines the laboratory request choice contract. |
-| `FirstComeLabStrategy` | Selects the earliest arrived laboratory request. |
-| `UrgentLabStrategy` | Selects the highest urgency laboratory request. |
-| `ShortestLabStrategy` | Selects the shortest laboratory request. |
-| `LabSchedulingContext` | Delegates laboratory scheduling to the active strategy. |
-| `WardLoadSource` | Defines access to ward occupancy information. |
-| `SimulatedWardLoadSource` | Supplies simulated ward occupancy values. |
-| `HospitalStrategySelector` | Selects strategies using user choices, patient urgency, hospital activity, queue length. |
-| `Main` | Demonstrates manual selection, automatic selection, runtime switching. |
-| `BedPlannerRegressionTest` | Checks unchanged bed choice results across refactoring. |
-| `StrategyTest` | Verifies strategies, selector rules, data source replacement, context switching. |
+| `Bed` | Stores information about a hospital bed. |
+| `LabRequest` | Stores laboratory request details. |
+| `BedSelectionStrategy` | Defines the method for selecting a bed. |
+| `FirstAvailableBedStrategy` | Finds the first available bed. |
+| `NearestBedStrategy` | Finds the closest available bed. |
+| `LeastBusyWardStrategy` | Chooses a bed in the least busy ward. |
+| `BedAllocationContext` | Runs the selected bed strategy. |
+| `BedPlanner` | Provides the bed selection method used by regression tests. |
+| `LabSchedulingStrategy` | Defines the method for selecting a laboratory request. |
+| `FirstComeLabStrategy` | Chooses the earliest laboratory request. |
+| `UrgentLabStrategy` | Chooses the most urgent laboratory request. |
+| `ShortestLabStrategy` | Chooses the request with the shortest duration. |
+| `LabSchedulingContext` | Runs the selected lab strategy. |
+| `WardLoadSource` | Defines how ward occupancy is accessed. |
+| `SimulatedWardLoadSource` | Provides simulated ward occupancy data. |
+| `HospitalStrategySelector` | Automatically selects strategies based on hospital conditions. |
+| `Main` | Runs the console demonstration of both strategy families. |
+| `BedPlannerRegressionTest` | Checks bed selection results before and after refactoring. |
+| `StrategyTest` | Tests strategies, selectors, context switching, external data handling. |
 
 ## Strategy vs State vs Template Method
 
-This is Strategy because the program chooses different algorithms for the same task. The context holds a strategy interface, and the selected object can be replaced at runtime. A patient's state does not control which algorithm gets executed, so this is not State. Template Method defines steps of an algorithm in a parent class using inheritance. Here, each complete algorithm lives in a separate implementation of an interface, and the contexts use composition.
+I used Strategy because the program needs different ways to select beds and schedule lab requests. Each algorithm is in a separate class, so it can be changed while the program is running.
 
-## Refactoring history
+State is used when an object's behavior depends on its internal state. Template Method uses inheritance to define common algorithm steps. My project uses separate strategy classes through interfaces, which makes Strategy more suitable.
 
-**Before commit:** ADD_BEFORE_COMMIT_URL
+## Refactoring History
 
-**After commit:** ADD_AFTER_COMMIT_URL
+At first, I implemented bed selection using `if-else` inside `BedPlanner`. After that, I moved the algorithms into separate Strategy classes.
 
-The unchanged `BedPlannerRegressionTest` must pass before and after refactoring. The first commit puts all three bed algorithms inside one `BedPlanner` class with `if/else`. The second replaces that implementation with Strategy while preserving `BedPlanner.choose(...)` behavior. The old implementation is provided in `refactoring-guide/BEFORE_BedPlanner.txt` for reference only; the evaluated code is under `src/`.
+The same regression test passes in both versions.
+
+- [Before — if-else implementation](https://github.com/eslishnah/Hospital-Admission-Strategy/commit/c95c732)
+- [After — Strategy Pattern](https://github.com/eslishnah/Hospital-Admission-Strategy/commit/d7e4320)
