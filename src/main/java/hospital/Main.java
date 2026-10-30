@@ -35,6 +35,21 @@ public class Main {
         }
 
         Scanner scanner = new Scanner(System.in);
+
+        System.out.println("--- WRAPPED STRATEGIES (MAX DISTANCE 5) ---");
+
+        for (String mode : List.of("FIRST", "NEAREST", "LEAST_BUSY")) {
+            BedSelectionStrategy original = selector.bedByName(mode);
+
+            BedAllocationContext context = new BedAllocationContext(
+                    new MaxDistanceBedStrategy(original, 5));
+
+            Bed result = context.choose(beds);
+
+            System.out.println(mode + ": " +
+                    (result == null ? "No suitable bed" : result.getId()));
+        }
+
         System.out.print("Manual bed strategy (FIRST/NEAREST/LEAST_BUSY): ");
         String bedMode = scanner.nextLine().trim();
         System.out.print("Manual lab strategy (FIRST/URGENT/SHORTEST): ");

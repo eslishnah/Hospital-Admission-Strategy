@@ -107,4 +107,24 @@ public class StrategyTest {
         BedAllocationContext context = new BedAllocationContext(selector.bedByName(mode));
         assertNull(context.choose(unavailable));
     }
+
+    
+    @Test
+    void wrapperLimitsAllBedStrategies() {
+        BedSelectionStrategy first =
+                new MaxDistanceBedStrategy(new FirstAvailableBedStrategy(), 5);
+
+        BedSelectionStrategy nearest =
+                new MaxDistanceBedStrategy(new NearestBedStrategy(), 5);
+
+        BedSelectionStrategy leastBusy =
+                new MaxDistanceBedStrategy(new LeastBusyWardStrategy(fake), 5);
+
+    assertNull(first.choose(beds));
+    assertEquals("B2", nearest.choose(beds).getId());
+    assertEquals("B3", leastBusy.choose(beds).getId());
+}
+
+
+
 }
